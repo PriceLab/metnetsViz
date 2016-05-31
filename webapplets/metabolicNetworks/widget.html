@@ -1,0 +1,95 @@
+<style>
+
+#cyMetnetDiv {
+  background-color: white;  // medium light gray
+  height: 400px;
+  width: 600px;
+  border: 1px solid #aaa;
+  margin-top: 2px;
+  margin-left: 0px;
+  padding: 0px;
+  }
+
+#cyMetnetDiv select, input, button{
+  font-size: 14px;
+  }
+
+#metnetControlsLayoutTable{
+  border: 1px solid black;
+  margin: 2px;
+  width: 100%;
+  }
+
+.chosen-container, .chosen-drop .chosen-search input {
+   width: 100% !important;
+   -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+           box-sizing: border-box;
+  }
+
+</style>
+
+
+<div id="metnetDiv">
+   <div id="metnetControlsDiv">
+      <table id="metnetControlsLayoutTable">
+         <tr>
+           <td style="width:25%">
+             <input type="text" id="metnetMouseOverReadout" disabled
+                    title="Edge and node names displayed here on hover"  style="width:80%; margin-right:2px"></input>
+             <input type="text" id="metnetSelectionCountReadout", disabled
+                    title="Selected node count" style="width: 40px;"></input>
+
+           </td>
+
+           <td style="width:20%">
+             <select id="cyMetnetOperationsMenu" style="float:right; margin-right:5px">
+             </select>
+           </td>
+
+           <td style="width:10%">
+             <select id="cyMetnetTumorCategorizationsMenu">
+             </select>
+           </td>
+
+           <td style="width:30%">
+             <select class="SelectionMenu" type="button" id="cyMetnetSendSelectionsMenu"
+                     style="float:right; margin-right:5px">
+            </select>
+          </td>
+         </tr>
+
+      <tr>
+          <td>
+           <input type="text" id="metnetSearchBox" placeholder="search" ></input>
+           <button id="metnetFitViewButton" title="Restore Initial View">Fit</button>
+           <button id="metnetShowEdgesFromSelectedButton" title="Show Edges from Selected Nodes">Show</button>
+           <button id="metnetHideEdgesButton" title="Hide Edges">Hide</button>
+           <button id="metnetZoomSelectedButton" title="Zoom into selected nodes">Zoom</button>
+          </td>
+
+          <td>
+           <select id="markerLayouts" style="float:right; margin-right:5px">
+           </select>
+          </td>
+
+          <td>
+             <select id="metnetEdgeTypeSelector"
+                class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu"
+                 multiple>
+            </select>
+          </td>
+      </tr>
+
+    </table>
+    </div>
+
+
+ <div id="cyMetnetDiv" data-toggle="tooltip" class="content" style="margin:0 auto" ></div>
+
+ <div id="bottomMargin" style="width:100%;height:30px margin:0 auto"></div>
+
+</div>
+
+
+

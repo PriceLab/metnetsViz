@@ -1,0 +1,35 @@
+
+
+
+
+<script>
+
+var hub = HubModule();
+hub.addOnDocumentReadyFunction(function() {
+  $("#oncoscapeTabs").tabs();
+  hub.raiseTab("datasetsDiv");
+  })
+
+hub.start();
+
+</script>
+<body>
+<script>
+
+</script>
+
+<div id="metnetTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+   </ul>
+
+
+</div>
+
+
+
+
+
+
+</body>
+</html>

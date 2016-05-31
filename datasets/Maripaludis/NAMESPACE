@@ -1,0 +1,9 @@
+exportClasses(Maripaludis)
+
+export(
+   Maripaludis
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

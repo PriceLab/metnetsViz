@@ -1,0 +1,11 @@
+Package: Maripaludis
+Type: Package
+Title: Metabolic Network and Experimental Data for Methanococcus maripaludis
+Version: 0.99.2
+Date: 2016-05-27
+Author: Paul Shannon, Matthew Richards
+Maintainer: Paul Shannon <paul.thurmond.shannon@gmail.com>
+Depends: R (>= 3.2.3), Dataset, RUnit
+Imports: methods, BiocGenerics
+Description: provided by Matt
+License: GPL-2
