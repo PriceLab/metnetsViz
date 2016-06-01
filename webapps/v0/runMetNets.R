@@ -1,5 +1,5 @@
 library(ChinookServer)
-stopifnot(packageVersion("ChinookServer") >= "1.0.7")
+stopifnot(packageVersion("ChinookServer") >= "1.0.8")
 library(RUnit)
 PORT=7001
 datasets <- "Maripaludis"
