@@ -18,9 +18,6 @@ var metnetModule = (function () {
   var nodeRestriction = [];
   var helpButton;
   var infoMenu;
-  var zoomMode = "Spread";
-  var initialZoom;
-  var oldZoom;
   var edgeTypeSelector;
   var mouseOverReadout;
   var graphOperationsMenu;
@@ -55,10 +52,13 @@ function initializeUI ()
 {
   $("#chinookTabs").tabs({
      activate: function(event, ui){
-        if(typeof(cwMetnet != "undefined")){
-           console.log("cwMetnet fit & resize");
-           cwMetnet.fit(50).resize();
-        }}});
+         var tabName = $("#chinookTabs .ui-state-active > a").html()
+         console.log("chinookTabs activate event: " + tabName);
+         if(tabName == "Network"){
+            console.log("setting timeout for metnet.fit");
+            setTimeout(function() {handleWindowResize()}, 0)
+            }
+         }});
 
   cyDiv = $("#cyMetnetDiv");
   statusDiv = $("#metnetAndPatientsStatusDiv");
@@ -280,10 +280,6 @@ function configureCytoscape ()
       console.log("cwMetnet ready");
       cwMetnet = this;
       cwMetnet.edges().show();
-      initialZoom = cwMetnet.zoom();
-      var debouncedSmartZoom = debounce(smartZoom, 20);
-      cwMetnet.on('zoom', debouncedSmartZoom);
-      cwMetnet.on('pan', debouncedSmartZoom);
 
       cwMetnet.on('mouseover', 'node', function(evt){
          var node = evt.cyTarget;
@@ -303,8 +299,6 @@ function configureCytoscape ()
          mouseOverReadout.val(msg);
          });
 
-      cwMetnet.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
-      cwMetnet.filter("edge[edgeType='chromosome']").show();
       searchBox.keydown(doSearch);
 
       console.log("cwMetnet.reset");
@@ -348,102 +342,9 @@ function debounce(func, wait, immediate)
        };
 }
 //----------------------------------------------------------------------------------------------------
-// expand node size and display node labels when:
-//   1) the user's coordinate space, due to zooming, has shrunk to < 600 pixels
-//   2) the zoom factor is so large relative to the initial zoom (a global variable, set on startup)
-//
-function smartZoom(event)
-{
-   //console.log("smartZoom");
-   var queuedEvents = $("#cyMetnetDiv").queue();
-
-   var zoomRatio = cwMetnet.zoom()/initialZoom;
-   //console.log("zoomRatio: " + zoomRatio);
-
-   if(zoomRatio < 1.0){
-      defaultStyle();
-      return;
-      }
-
-   var visibleCoords = cwMetnet.extent();
-   var visibleOnScreen = function(node){
-      if(node.data("landmark"))
-         return(false);
-      //var x = node.position().x;
-      //var y = node.position().y;
-      var bbox = node.boundingBox();
-      var visibleX = (bbox.x1 >= visibleCoords.x1 && bbox.x1 <= visibleCoords.x2) |
-                     (bbox.x2 >= visibleCoords.x1 && bbox.x2 <= visibleCoords.x2);
-      if(!visibleX)
-        return false;
-      var visibleY = (bbox.y1 >= visibleCoords.y1 && bbox.y1 <= visibleCoords.y2) |
-                     (bbox.y2 >= visibleCoords.y1 && bbox.y2 <= visibleCoords.y2);
-      return(visibleY);
-      //return(x >= visibleCoords.x1 && x <= visibleCoords.x2 &&
-      //       y >= visibleCoords.y1 && y <= visibleCoords.y2);
-      };
-
-   //console.log("starting calculation of visibleNodes");
-   var visibleNodes = cwMetnet.nodes().fnFilter(function(node){return(visibleOnScreen(node));});
-   //console.log("visibleNode count: " + visibleNodes.length);
-   if(visibleNodes.length > 400){
-      defaultStyle();
-      //console.log("returning, visibleNode count: " + visibleNodes.length);
-      return;
-      }
-   //console.log("need to smartZoom, setting hanlder off to discard queued events");
-   //cwMetnet.off('zoom', smartZoom);
-
-   //console.log(event);
-   var newZoom = 1.0 + cwMetnet.zoom() - oldZoom;
-   oldZoom = cwMetnet.zoom(); // keep this for next time
-
-   //console.log("complete");
-
-      // TODO: these two ratios might be reduced to just one
-
-   var windowRatio = cwMetnet.width()/cwMetnet.extent().h;
-
-   var fontSize = cwMetnet.extent().h/60;
-   if(fontSize < 0.6)
-     fontSize = 0.6;
-
-   var fontSizeString = fontSize + "px";
-   var borderWidthString = cwMetnet.extent().h/600 + "px";
-   //console.log("--- new fontsize: " + fontSizeString);
-   //console.log("--- new borderWidth: " + borderWidthString);
-   cwMetnet.edges().style({"width": borderWidthString});
-
-   var newWidth, newHeight, id;
-   var factor = 1.5; // 3
-   cwMetnet.batch(function(){
-      visibleNodes.map(function(node){
-         newWidth = factor *  node.data("trueWidth") / zoomRatio;
-         newHeight = factor *  node.data("trueHeight") / zoomRatio;
-         id = node.id();
-         node.data({zoomed: true});
-         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
-                    "border-width": borderWidthString});
-         });
-       });
-
-  //console.log("visibleNode mapping complete, adding smartZoom handler back");
-  //cwMetnet.on('zoom', smartZoom);
-
-
-} // smartZoom
-//----------------------------------------------------------------------------------------------------
 function defaultStyle()
 {
-   var zoomedNodes = cwMetnet.nodes("[zoomed]");
-   // console.log("restoring default style, zoomed node count: " + zoomedNodes.length);
    cwMetnet.edges().style({"width": "1px"});
-
-   zoomedNodes.map(function(node){node.style({width: node.data('trueWidth'),
-                                              height: node.data('trueHeight'),
-                                              zoomed: false,
-                                             'border-width': "1px",
-                                             'font-size': "3px"});});
 
 } // defaultStyle
 //----------------------------------------------------------------------------------------------------
@@ -466,7 +367,7 @@ function doGraphOperation()
          invertSelection();
          break;
       case "Clear Selections":
-         cwMetnet.filter('node:selected').unselect();
+         cwMetnet.filter("node:selected").unselect();
          break;
       case "Select All Connected Nodes":
          selectAllConnectedNodes();
@@ -478,7 +379,7 @@ function doGraphOperation()
          cwMetnet.filter("node:unselected").hide();
          break;
       case "Show All Nodes":
-         cwMetnet.filter('node:hidden').show();
+         cwMetnet.filter("node:hidden").show();
          break;
       case "Restrict Next Ops to Selected Nodes":
          restrictNextOpsToSelectedNodes();
@@ -499,7 +400,7 @@ function clearSelection ()
 //----------------------------------------------------------------------------------------------------
 function selectFirstNeighbors ()
 {
-  selectedNodes = cwMetnet.filter('node:selected');
+  selectedNodes = cwMetnet.filter("node:selected");
   showEdgesForNodes(cwMetnet, selectedNodes);
 }
 //----------------------------------------------------------------------------------------------------
@@ -532,16 +433,15 @@ function showAllEdges ()
 
    for(var e=0; e < edgeTypesToDisplay.length; e++){
       var type =  edgeTypesToDisplay[e];
-      selectionString = '[edgeType="' + type + '"]';
-      //console.log(" showAllEdges selection string: " + selectionString);
-      cwMetnet.edges(selectionString).show();
+      //selectionString = '[edgeType="' + type + '"]';
+      //cwMetnet.edges(selectionString).show();
       } // for e
 
 } // showAllEdges
 //----------------------------------------------------------------------------------------------------
 function zoomSelected()
 {
-   cwMetnet.fit(cwMetnet.$(':selected'), 100);
+   cwMetnet.fit(cwMetnet.$(":selected"), 100);
 }
 //----------------------------------------------------------------------------------------------------
 function handleIncomingIdentifiers(msg)
@@ -630,15 +530,15 @@ function showEdges()
 //----------------------------------------------------------------------------------------------------
 function zoomSelection()
 {
-   cwMetnet.fit(cwMetnet.$(':selected'), 50);
+   cwMetnet.fit(cwMetnet.$(":selected"), 50);
 }
 //----------------------------------------------------------------------------------------------------
 function selectedNodeIDs(cw)
 {
    ids = [];
-   noi = cw.filter('node:selected');
+   noi = cw.filter("node:selected");
    for(var n=0; n < noi.length; n++){
-     ids.push(noi[n].data('id'));
+     ids.push(noi[n].data("id"));
      }
   return(ids);
 
@@ -647,9 +547,9 @@ function selectedNodeIDs(cw)
 function selectedNodeNames(cw)
 {
    var names = [];
-   var noi = cw.filter('node:selected');
+   var noi = cw.filter("node:selected");
    for(var n=0; n < noi.length; n++){
-     names.push(noi[n].data('name'));
+     names.push(noi[n].data("name"));
      }
 
   return(names);
@@ -897,27 +797,32 @@ function displayMetnetNetwork(msg)
    hub.logEventOnServer(thisModulesName, "display metnet network", "data received", "");
 
    if(msg.status == "success"){
-         graphAsString = msg.payload["g.json"];
-         console.log("nchar(network): " + graphAsString.length);
-         var json = JSON.parse(graphAsString);
-         cwMetnet.remove(cwMetnet.edges());
-         cwMetnet.remove(cwMetnet.nodes());
-         console.log(" after JSON.parse, json.length: " + json.length);
-         console.log("  about to add json.elements");
-         cwMetnet.add(json.elements);
-         cwMetnet.style(json.style);
-         //cwMetnet.edges().hide();
-         cwMetnet.nodes().unselect();
+       graphAsString = msg.payload["g.json"];
+       console.log("nchar(network): " + graphAsString.length);
+       var json = JSON.parse(graphAsString);
+       cwMetnet.remove(cwMetnet.edges());
+       cwMetnet.remove(cwMetnet.nodes());
+       console.log(" after JSON.parse, node/edge count: " + json.elements.nodes.length + "/" + json.elements.edges.length)
+       console.log("  about to add json.elements");
+       cwMetnet.add(json.elements);
+       console.log(50);
+       cwMetnet.style(json.style);
+       cwMetnet.nodes().unselect();
+       console.log(51);
            // map current node degree into a node attribute of that name
-         cwMetnet.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
+       //cwMetnet.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
+       console.log(52);
 
-         var edgeTypes = hub.uniqueElementsOfArray(cwMetnet.edges().map(function(edge){
+       var edgeTypes = hub.uniqueElementsOfArray(cwMetnet.edges().map(function(edge){
                                   return(edge.data("edgeType"));}
                                   ));
+       console.log(53);
          updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
-         cwMetnet.fit(20);
+       console.log(54);
 
-      var defaultLayout = JSON.stringify(cwMetnet.nodes().map(function(n){
+       cwMetnet.fit(20);
+       console.log(55);
+       var defaultLayout = JSON.stringify(cwMetnet.nodes().map(function(n){
                                          return({id:n.id(), position:n.position()});}));
       localStorage.metnetDefault = defaultLayout;
       defaultPatientNodeColor = cwMetnet.nodes("[nodeType='patient']").style("background-color");
@@ -981,11 +886,11 @@ function datasetSpecified (msg)
 
  return{
      init: function(){
-        hub.addMessageHandler("sendSelectionTo_MetnetAndPatients", handleIncomingIdentifiers);
-        hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-        hub.addMessageHandler("datasetSpecified", datasetSpecified);
-        hub.addMessageHandler("displayMetnetNetwork", displayMetnetNetwork);
-        hub.addOnDocumentReadyFunction(initializeUI);
+       hub.addMessageHandler("sendSelectionTo_MetnetAndPatients", handleIncomingIdentifiers);
+       hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+       hub.addMessageHandler("datasetSpecified", datasetSpecified);
+       hub.addMessageHandler("displayMetnetNetwork", displayMetnetNetwork);
+       hub.addOnDocumentReadyFunction(initializeUI);
        }
      };
 
@@ -993,3 +898,4 @@ function datasetSpecified (msg)
 //----------------------------------------------------------------------------------------------------
 metnetModule = metnetModule();
 metnetModule.init();
+
