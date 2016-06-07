@@ -421,21 +421,24 @@ function hideAllEdges ()
 
 } // hideAllEdges
 //----------------------------------------------------------------------------------------------------
+// ~/github/metnetViz/webapplets/metabolicNetworks/
 function showAllEdges ()
 {
    var edgeTypesToDisplay = edgeTypeSelector.val();
+   cwMetnet.edges().show()
 
-   console.log("edgeTypeToDisplay: " + edgeTypesToDisplay);
+   //console.log("edgeTypeToDisplay: " + edgeTypesToDisplay);
+   //console.log("            count: " + edgeTypesToDisplay.length);
 
-   if(edgeTypesToDisplay === null){
-      return;
-      }
+   //if(edgeTypesToDisplay === null){
+   //   return;
+   //   }
 
-   for(var e=0; e < edgeTypesToDisplay.length; e++){
-      var type =  edgeTypesToDisplay[e];
-      //selectionString = '[edgeType="' + type + '"]';
-      //cwMetnet.edges(selectionString).show();
-      } // for e
+   //for(var e=0; e < edgeTypesToDisplay.length; e++){
+   //   var type =  edgeTypesToDisplay[e];
+   //   selectionString = "[edgeType=\"" + type + "\"]";
+   //   cwMetnet.edges(selectionString).show();
+   //   } // for e
 
 } // showAllEdges
 //----------------------------------------------------------------------------------------------------
@@ -463,7 +466,7 @@ function handleIncomingIdentifiers(msg)
                       ids.join(", ");
       title = ids.length + " unrecognized identifiers";
       console.log("+++++++++++ creating error div");
-      $('<div id="metnetIncomingIdentifiersErrorDialog" />').html(errorMessage).dialog({title: title, width:600, height:300});
+      // $('<div id="metnetIncomingIdentifiersErrorDialog" />').html(errorMessage).dialog({title: title, width:600, height:300});
       }
 
    console.log("about to post status from incoming identifiers");

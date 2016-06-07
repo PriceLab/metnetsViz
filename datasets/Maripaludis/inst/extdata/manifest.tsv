@@ -1,3 +1,3 @@
 variable	class	category	subcategory	entity.count	feature.count	entity.type	feature.type	minValue	maxValue	provenance
-metabolicNetwork.json.RData	g.json	character	network	metabolic	1281	1375	nodes	edges	NA	NA	Matthew Richards
+maripaludis.v0.organic.RData	g.json	character	network	metabolic	1281	1375	nodes	edges	NA	NA	Matthew Richards
 
