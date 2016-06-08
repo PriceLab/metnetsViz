@@ -1,23 +1,23 @@
 vizmap = [
 
-   {selector: "edge[edgeType='productsOf']", css: {
-      "line-color": "rgb(0, 120, 0)",
-      "target-arrow-shape":"none",
-      "source-arrow-shape":"triangle",
-      "source-arrow-color": "rgb(0, 120, 0)",
-      width: "2px"
+   {selector: 'edge', css: {
+      "line-color":  "rgb(192, 192, 192)",
+      "source-arrow-shape": "none",
+      "target-arrow-shape": "triangle",
+      "target-arrow-color": "rgb(192, 192, 192)",
+      width: "2px",
+      "curve-style": "bezier",
       }},
 
-   {selector: 'edge[edgeType="reactantsIn"]', css: {
-      "line-color": "rgb(0, 0, 255)",
-      "source-arrow-shape":"none",
-      "target-arrow-shape":"triangle",
-      "target-arrow-color": "rgb(0, 0, 255)",
-      width: "2px"
+   {selector: 'edge[fluxType="present"]', css: {
+      "line-color": "mapData(flux, 0.5, 200, rgb(200,200,255), rgb(0, 0, 255))",
+      "source-arrow-shape": "none",
+      "target-arrow-shape": "triangle",
+      "target-arrow-color": "rgb(192, 192, 192)",
+      width: "10px"
       }},
 
    {selector: 'edge:selected', css: {
-      "line-color": "rgb(200, 200, 0)",
       "overlay-opacity": 0.2,
       "overlay-color": "gray"
       }},
@@ -33,9 +33,8 @@ vizmap = [
       "height":"mapData(degree,0.0,50.0,20.0,300.0)",
       "font-size":"12px"}},
 
-   {"selector": "node[fluxType='positive']", "css" :{"background-color": "mapData(flux, 0.5, 200, white, red)"}},
-
-   {"selector": "node[fluxType='negative']", "css":{"background-color": "mapData(flux, -200, 0.5, green, white)"}},
+   //{"selector": "node[fluxType='positive']", "css" :{"background-color": "mapData(flux, 0.5, 200, white, red)"}},
+   //{"selector": "node[fluxType='negative']", "css":{"background-color": "mapData(flux, -200, 0.5, green, white)"}},
 
    {selector: 'node[type="reaction"]', "css": {"shape": "octagon"}},
 

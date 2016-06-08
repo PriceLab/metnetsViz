@@ -362,6 +362,7 @@ toGraphNEL <- function(tbl.interactions, tbl.reactions, tbl.genes, tbl.metabolit
 
    edgeDataDefaults(g, attr = "edgeType") <- "undefined"
    edgeDataDefaults(g, attr = "flux") <- 0.0
+   edgeDataDefaults(g, attr = "fluxType") <- "missing"
 
    all.nodes <- unique(c(tbl.interactions$a, tbl.interactions$b))
    reactions <- unique(tbl.interactions$b)
@@ -397,9 +398,21 @@ toGraphNEL <- function(tbl.interactions, tbl.reactions, tbl.genes, tbl.metabolit
    nodeData(g, names(node.degrees), "degree") <- as.integer(node.degrees)
    tbl.flux <- subset(tbl.flux, abs(flux) > 0.5)
 
+   flux.reaction.longNames <- subset(tbl.flux, flux != 0 & !is.na(rxLongName))$rxLongName
+   for(longName in flux.reaction.longNames){
+      abs.flux <- abs(subset(tbl.flux, rxLongName==longName)$flux)
+      indices <- grep(longName, names(edgeData(g)))
+      node.pair.names <- strsplit(names(edgeData(g)[indices]), "\\|")
+      for(node.pair in node.pair.names){
+         node.a <- node.pair[1]
+         node.b <- node.pair[2]
+         edgeData(g, node.a, node.b, attr="flux") <- abs.flux
+         edgeData(g, node.a, node.b, attr = "fluxType") <- "present"
+         } # for node.pair
+      } # for longName
+
    flux.reactions <- tbl.flux$rxLongName[which(!is.na(tbl.flux$rxLongName))]
    tbl.interactionsWithFlux <- subset(tbl.interactions, b %in% flux.reactions)
-
    flux.values <- tbl.flux$flux[which(!is.na(tbl.flux$rxLongName))]
    #flux.sign <- flux.values >= 0
    #f2 <- fivenum(flux.values)
@@ -430,6 +443,7 @@ reproduce <- function()
 {
    rcy <- run()
    readAndApplyLayout(rcy, "organicLayout.tsv");
+   restoreLayout(rcy, "organicMinorAdjusmentsAroundBiomass.RData")
    fit(rcy)
    g.json <- getJSON(rcy)  # character, nchar  758764
    save(g.json, file="maripaludis.v0.organic.RData")
