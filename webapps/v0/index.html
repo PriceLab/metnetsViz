@@ -15,7 +15,9 @@
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
    <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
 
-   <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+   <!-- script   src="https://code.jquery.com/jquery-1.12.3.min.js"></script -->
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
 
    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
    <link   rel="stylesheet" type="text/css"
@@ -23,10 +25,14 @@
 
    <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
 
-   <!-- script
-   src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/d3.min.js"></script -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.js"></script>
+  <link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-qtip/2.2.5/cytoscape-qtip.js"></script>
+
+
+
    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
-   
+
    <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/jquery.dataTables-1.10.5.min.js"></script>
    <link   rel="stylesheet" type="text/css"
            href="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/css/jquery.dataTables-1.10.5.min.css">
@@ -1329,6 +1335,8 @@ function configureCytoscape ()
 {
   cwMetnet = $("#cyMetnetDiv");
   cwMetnet.cytoscape({
+     //boxSelectionEnabled: false,
+     ///autounselectify: true,
      hideEdgesOnViewport: false,
      hideLabelsOnViewport: false,
      boxSelectionEnabled: true,
@@ -1344,23 +1352,30 @@ function configureCytoscape ()
       cwMetnet = this;
       cwMetnet.edges().show();
 
-      cwMetnet.on('mouseover', 'node', function(evt){
+      cwMetnet.on('mousedown', 'node', function(evt){
          var node = evt.cyTarget;
-         mouseOverReadout.val(node.id());
+         //mouseOverReadout.val(node.id());
+         node.qtip({
+            content: this.data("label") + " flux: " + this.data("flux"),
+            show: {event: event.type, ready: true},
+            hide: {event: 'mouseout'},
+            style: {classes: 'qtip-bootstrap', tip: {width: 16,height: 8}}
+            }, event);
          });
       cwMetnet.on('mouseout', 'node', function(evt){
          var node = evt.cyTarget;
          mouseOverReadout.val("");
          });
-      cwMetnet.on('mouseover', 'edge', function(evt){
-         var edge = evt.cyTarget;
-         var d = edge.data();
-         var msg = d.edgeType + ": " + d.source + " - " + d.target;
-         var mutation = d.mutation;
-         if(typeof(mutation) == "string")
-            msg = mutation + " " + msg;
-         mouseOverReadout.val(msg);
-         });
+      //cwMetnet.on('mouseover', 'edge', function(evt){
+      //   var edge = evt.cyTarget;
+      //   var d = edge.data();
+      //   var msg = d.edgeType + ": " + d.source + " - " + d.target;
+      //   var mutation = d.mutation;
+      //   if(typeof(mutation) == "string")
+      //      msg = mutation + " " + msg;
+      //   mouseOverReadout.val(msg);
+      //   });
+
 
       searchBox.keydown(doSearch);
 
@@ -1371,8 +1386,10 @@ function configureCytoscape ()
       //hideAllEdges();
       configureLayoutsMenu(layoutMenu);
       cwMetnet.fit(50);
-      }, // cwMetnet.ready
+      } // cwMetnet.ready
+
      }); // .cytoscape
+
 
 } // configureCytoscape
 //----------------------------------------------------------------------------------------------------

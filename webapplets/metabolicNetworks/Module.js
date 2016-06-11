@@ -281,22 +281,19 @@ function configureCytoscape ()
       cwMetnet = this;
       cwMetnet.edges().show();
 
-      cwMetnet.on('mouseover', 'node', function(evt){
+      cwMetnet.on('mousedown', 'node', function(evt){
          var node = evt.cyTarget;
-         mouseOverReadout.val(node.id());
+         //mouseOverReadout.val(node.id());
+         node.qtip({
+            content: this.data("label") + " flux: " + this.data("flux"),
+            show: {event: event.type, ready: true},
+            hide: {event: 'mouseout'},
+            style: {classes: 'qtip-bootstrap', tip: {width: 16,height: 8}}
+            }, event);
          });
       cwMetnet.on('mouseout', 'node', function(evt){
          var node = evt.cyTarget;
          mouseOverReadout.val("");
-         });
-      cwMetnet.on('mouseover', 'edge', function(evt){
-         var edge = evt.cyTarget;
-         var d = edge.data();
-         var msg = d.edgeType + ": " + d.source + " - " + d.target;
-         var mutation = d.mutation;
-         if(typeof(mutation) == "string")
-            msg = mutation + " " + msg;
-         mouseOverReadout.val(msg);
          });
 
       searchBox.keydown(doSearch);
@@ -305,11 +302,12 @@ function configureCytoscape ()
       cwMetnet.reset();
       handleWindowResize();
       cwMetnet.edges().selectify(); // this seems to hold through session, visibility notwithstanding
-      //hideAllEdges();
       configureLayoutsMenu(layoutMenu);
       cwMetnet.fit(50);
-      }, // cwMetnet.ready
+      } // cwMetnet.ready
+
      }); // .cytoscape
+
 
 } // configureCytoscape
 //----------------------------------------------------------------------------------------------------
